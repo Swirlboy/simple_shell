@@ -1,0 +1,181 @@
+.TH simple_shell 1 "16 May 2022" "0.1 Simple Shell General Commands Manual" "ALX SE"
+
+I. This program has been created in the context of the second teams project for ALX SE school.
+
+.B Run
+.RS
+
+.SH NAME
+ hsh - simpleshell.
+.RE
+- command interpreter (simple shell) that can be compiled and executed from the command line
+.RS
+
+.SH SYNOPSIS
+.B ./simple_shell
+to execute Simple Shell.
+.RE
+
+
+.SH DESCRIPTION
+.RS
+.B ./simple_shell is a command-line interpreter that provides a command line user interface for Unix-like operating systems. It reads lines from either file or terminal (standart input), interprets them, and executes commands. The process of the program is forked into a child process, in which the system call execve() will be called. The arguments for execve() are an array of strings formed from the input, and the extern char **environ variable. The child process will be replaced by the execution of the command, and the program will return to the parent process.
+.PP
+The first Unix shell was the Thompson shell, sh , written by Ken Thompson. Simple_shell will check if the first argument passed to it , is a built-in (ls, cd, pwd, etc). If it fails, it will check wheather is a bulit-in script, if not then it will check the PATH for the executable file and only when it finds it, will execute the command.
+.PP
+The shell is both an interactive command language and a scripting language, and is used by the operating system to control the execution of the system using shell scripts.
+.RE
+.SH OVERVIEW
+.PP
+The simple shell is a program that takes commands from the keyboard and gives them to the operating system to perform. It incorporates many features and generally executes other commands. An interactive shell generally prompts before each command, inspects arguments, execute them and handles possible errors. The shell implements a language that has flow control constructs, a macro facility that provides a variety of features in addition to data storage, along with built in history and line editing capabilities. The simple shell reads input in terms of lines from a file and breaks it up into words at whitespaces. It incorporates many features to aid interactive use and has the advantage
+that the interpretative language is common to both interactive and non-interactive use (shell scripts).  That is, commands can be typed directly to the running shell or can be put into a file and the file can be executed directly by the shell.
+
+.SH RETURN VALUE
+The shell returns the error code given by the last completed command followed by either ctrl-d or exit with no status code.
+.SH SYNTAX
+.SS
+.B INVOCATION
+.RS
+Simple Shell accepts two modes: interactive and non-interactive. To enter the interactive mode, just execute ./hsh on the command line, and then hit "Enter".
+The parent process will print the prompt
+.B $
+and wait for the user to input a command, that will be executed by execve().
+
+.B INTERACTIVE MODE
+.PP
+.RS
+.I [command_name][flags or option_name][argument ...]
+The commands are run with user-interaction from keyboard.
+E.g. the shell can prompt the user to enter input.
+.PP
+.RE
+
+.SH EXAMPLES
+$ ./hsh
+simple_shell@alx ($) /bin/ls
+hsh main.c shell.c README.md
+simple_shell@alx ($)
+simple_shell@alx ($) exit
+$
+.PP
+.RE
+.B NON-INTERACTIVE MODE
+The shell is probably run from an automated process so it can't assume if one can request input or that someone will see the output.
+E.g Maybe it is best to write output to a log-file.
+.PP
+.RS
+.SH EXAMPLES
+simple_shell@alx $ echo "/bin/ls" | ./hsh
+hsh main.c shell.c test_ls_2
+simple_shell@alx $
+simple_shell@alx $ cat test_ls_2
+/bin/ls
+/bin/ls
+simple_shell@alx $
+simple_shell@alx $ cat test_ls_2 | ./hsh
+hsh main.c shell.c test_ls_2
+hsh main.c shell.c test_ls_2
+simple_shell@alx $
+.P
+.RE
+.SH EXAMPLES
+A few of the commands that can be executed in the simple_shell, are included in the PATH environment variable:
+.PP
+.B ls
+.PP
+--- List files and directories
+.PP
+.B mkdir
+.PP
+--- Creates directory
+.PP
+.RS
+.IP -Compilling
+.B gcc -Wall -Werror -Wextra -pedantic *.c -o hsh
+.PP
+.RE
+.sp
+.B Path search
+.RS
+The way Simple Shell works is that when it receives input from the command line, it searches for a shell function by that name. If it doesn't find it, it searches for a builtin by that name.	 If it's not a builtin, and the command is the full name of an executable, like /bin/ls, it will be executed. If the command doesn't include its full path, and the PATH environment variable has not been altered, then Simple Shell searches in the PATH for the command and its directory.
+.PP
+PATH is a colon-separated list of directories containing the executable programs corresponding to the commands. If PATH has been altered, or emptied, Simple Shell will first look in the current working directory to see if the command corresponds to an executable. If it finds it there, this executable will be executed, if not, it will go through the PATH to try to find the full path of the command.
+.R
+
+
+.SH BUILTINS
+This section lists the builtin commands which are builtin because they need to perform some operation that can't be performed by a separate process. In addition to these, there are several other commands that may be builtin for efficiency (e.g.  printf(1), echo(1), test(1), etc).
+
+.SH EXAMPLE
+.PP
+simple_shell@alx($) ./hsh
+
+simple_shell@alx($) ls
+.PP
+.RS
+--- list item in a directory
+.RE
+.PP
+.B cd ..
+.PP
+.RS
+--- Moves up one directory.
+.RE
+.PP
+.B cd [directory]
+.PP
+.RS
+--- Switch to specified directory.
+With '-', changes to the previous directory and prints the current one.
+.RE
+.PP
+.B simple_shell@alx($) ls -l
+.RS
+--will list all the files in the current working directory, in long format.
+.RE
+
+.SH EXIT STATUS
+.PP
+.B exit
+.PP
+--- Moves up one directory
+.PP
+Errors that are detected by the shell, such as a syntax error, will cause the shell to exit with a non-zero exit status.  If the shell is not an interactive shell, the execution of the shell file will be
+aborted.  Otherwise the shell will return the exit status of the last command executed, or if the exit builtin is used with a numeric argument, it will return the argument.
+
+.SH ENVIRONMENT
+.B env
+.RE
+.PP
+--- Prints all environment variables.
+.RS
+.RE
+.PP
+.B PATH
+.PP
+--The default search path for executables.
+.RS
+.RE
+.PP
+.B PWD
+.PP
+.RS
+--The logical value of the current working directory.  This is set by the cd command.
+
+.SH SEE ALSO
+.RE
+.I echo(1), login(1), printf(1), passwd(5), environ(7)
+.PP
+.B sh(1) man page
+.RS
+
+.PP
+.SH NOTES
+Simple Shell is entirely coded in the C programming language. It does not entirely replicate the real shell, as some builtins and features are missing. Simple Shell only takes one command at a time for now.
+.SH BUGS
+No known bugs.
+
+.SH AUTHOR
+Bright Mujor
+Nike Oni
+
