@@ -1,87 +1,90 @@
-#include "main.h"
+#include "shell.h"
 
 /**
- * execute - executes the command
- * @cmd: command to run
- * Return: 0 on success1 -1 if cmd is exit and 1 on any other error
+ * main - Simple Shell (Hsh)
+ * @argc: Argument Count
+ * @argv:Argument Value
+ * Return: Exit Value By Status
  */
-int execute(char **cmd)
+
+int main(__attribute__((unused)) int argc, char **argv)
 {
+  char *input, **cmd;
+  int counter = 0, statue = 1, st = 0;
 
-	pid_t child_pid;
-	int status;
-
-	if (strncmp("exit", cmd[0], 4) == 0)
-		return (-1);
-
-	child_pid = fork();
-
-	if (child_pid == -1)
+  if (argv[1] != NULL)
+    read_file(argv[1], argv);
+  signal(SIGINT, signal_to_handel);
+  while (statue)
+    {
+      counter++;
+      if (isatty(STDIN_FILENO))
+	prompt();
+      input = _getline();
+      if (input[0] == '\0')
 	{
-		perror("Error");
-		return (1);
+	  continue;
 	}
-	else if (child_pid == 0)
+      history(input);
+      cmd = parse_cmd(input);
+      if (_strcmp(cmd[0], "exit") == 0)
 	{
-		if (execve(cmd[0], cmd, NULL) == -1)
-		{
-			perror("Error");
-			exit(-1);
-		}
+	  exit_bul(cmd, input, argv, counter);
 	}
-	else
-		wait(&status);
+      else if (check_builtin(cmd) == 0)
+	{
+	  st = handle_builtin(cmd, st);
+	  free_all(cmd, input);
+	  continue;
+	}
+      else
+	{
+	  st = check_cmd(cmd, input, counter, argv);
 
-	return (0);
+	}
+      free_all(cmd, input);
+    }
+  return (statue);
 }
-
-
 /**
- * main - main simple shell
- * @argc: number of arguments
- * @argv: list of command line arguments
- * Return: Always 0, -1 on error.
+ * check_builtin - check builtin
+ *
+ * @cmd:command to check
+ * Return: 0 Succes -1 Fail
  */
-
-int main(int argc, char **argv)
+int check_builtin(char **cmd)
 {
+  bul_t fun[] = {
+		 {"cd", NULL},
+		 {"help", NULL},
+		 {"echo", NULL},
+		 {"history", NULL},
+		 {NULL, NULL}
+  };
+  int i = 0;
+  if (*cmd == NULL)
+    {
+      return (-1);
+    }
 
-	int response;
-	char **tokens;
-	size_t bufsize = BUFSIZ;
-	int isPipe = 0;
-	char *buffer;
-
-	if (argc >= 2)
-	{
-		/*TODO: Handle cases where there is no argument, only the command*/
-		if (execve(argv[1], argv, NULL) == -1)
-		{
-			perror("Error");
-			exit(-1);
-		}
-		return (0);
-	}
-
-	buffer = (char *)malloc(bufsize * sizeof(char));
-	if (buffer == NULL)
-	{
-		perror("Unable to allocate buffer");
-		exit(1);
-	}
-
-	do {
-		if (isatty(fileno(stdin)))
-		{
-			isPipe = 1;
-			_puts("cisfun#: ");
-		}
-
-		getline(&buffer, &bufsize, stdin);
-		buffer[_strlen(buffer) - 1] = '\0';
-		tokens = stringToTokens(buffer);
-		response = execute(tokens);
-	} while (isPipe && response != -1);
-
+  while ((fun + i)->command)
+    {
+      if (_strcmp(cmd[0], (fun + i)->command) == 0)
 	return (0);
+      i++;
+    }
+  return (-1);
+}
+/**
+ * creat_envi - Creat Array of Enviroment Variable
+ * @envi: Array of Enviroment Variable
+ * Return: Void
+ */
+void creat_envi(char **envi)
+{
+  int i;
+
+  for (i = 0; environ[i]; i++)
+    envi[i] = _strdup(environ[i]);
+  envi[i] = NULL;
 }
